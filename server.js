@@ -5,6 +5,7 @@ const sequelize = require("./config/db");
 const userRoutes = require('./routes/user');
 const customerRoutes = require('./routes/customer');
 const calendarRoutes = require('./routes/calendar');
+const categoryRoutes = require('./routes/category');
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/calendars', calendarRoutes);
+app.use('/api/categories', categoryRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
