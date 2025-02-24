@@ -1,4 +1,4 @@
-const { Category } = require('../models');
+const { Category, Product } = require('../models');
 
 /**
  * CREATE - Créer une nouvelle catégorie
@@ -43,6 +43,27 @@ exports.getCategoryById = async (req, res) => {
         return res.json(category);
     } catch (error) {
         console.error('Error fetching category:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
+
+/**
+ * READ - Récupérer tous les produits d'une catégorie
+ */
+exports.getCategoryProducts = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const category = await Category.findByPk(id, {
+            include: [{
+                association: 'products'
+            }]
+        });
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found.' });
+        }
+        return res.json(category.products);
+    } catch (error) {
+        console.error('Error fetching products for category:', error);
         return res.status(500).json({ error: 'Server error' });
     }
 };
