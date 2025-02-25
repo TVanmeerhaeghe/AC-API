@@ -1,4 +1,4 @@
-const { Estimate } = require('../models');
+const { Estimate, Task } = require('../models');
 
 /**
  * CREATE - Créer une nouvelle estimation
@@ -71,7 +71,11 @@ exports.getAllEstimates = async (req, res) => {
 exports.getEstimateById = async (req, res) => {
     try {
         const { id } = req.params;
-        const estimate = await Estimate.findByPk(id);
+        const estimate = await Estimate.findByPk(id, {
+            include: [
+                { model: Task, as: 'tasks' }
+            ]
+        });
         if (!estimate) {
             return res.status(404).json({ message: 'Estimate not found.' });
         }

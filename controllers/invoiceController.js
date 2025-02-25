@@ -1,4 +1,4 @@
-const { Invoice } = require('../models');
+const { Invoice, Product, Task } = require('../models');
 
 exports.createInvoice = async (req, res) => {
     try {
@@ -59,9 +59,20 @@ exports.getAllInvoices = async (req, res) => {
 exports.getInvoiceById = async (req, res) => {
     try {
         const { id } = req.params;
-        const invoice = await Invoice.findByPk(id);
+        const invoice = await Invoice.findByPk(id, {
+            include: [
+                { model: Product, as: 'product' },
+                { model: Task, as: 'tasks' }
+            ]
+        });
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
+        if (invoice.product_id) {
+            invoice.dataValues.tasks = undefined;
+        } else {
+            invoice.dataValues.product = undefined;
         }
         return res.json(invoice);
     } catch (error) {
