@@ -14,7 +14,6 @@ node_modules/
 
 # Fichiers d'environnement
 .env
-.env.* 
 
 # Système
 .DS_Store
