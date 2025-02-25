@@ -1,4 +1,4 @@
-const { Invoice, Product, Task } = require('../models');
+const { Invoice, Product, Task, Customer } = require('../models');
 
 exports.createInvoice = async (req, res) => {
     try {
@@ -62,7 +62,8 @@ exports.getInvoiceById = async (req, res) => {
         const invoice = await Invoice.findByPk(id, {
             include: [
                 { model: Product, as: 'product' },
-                { model: Task, as: 'tasks' }
+                { model: Task, as: 'tasks' },
+                { model: Customer, as: 'customer' }
             ]
         });
         if (!invoice) {

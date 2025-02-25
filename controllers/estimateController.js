@@ -1,4 +1,4 @@
-const { Estimate, Task } = require('../models');
+const { Estimate, Task, Customer } = require('../models');
 
 /**
  * CREATE - Créer une nouvelle estimation
@@ -73,7 +73,8 @@ exports.getEstimateById = async (req, res) => {
         const { id } = req.params;
         const estimate = await Estimate.findByPk(id, {
             include: [
-                { model: Task, as: 'tasks' }
+                { model: Task, as: 'tasks' },
+                { model: Customer, as: 'customer' }
             ]
         });
         if (!estimate) {
