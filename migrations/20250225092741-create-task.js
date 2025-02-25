@@ -2,49 +2,44 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Estimates', {
+    await queryInterface.createTable('Tasks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      creation_date: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      name: {
+        type: Sequelize.STRING(255)
       },
-      validity_date: {
-        type: Sequelize.DATE
-      },
-      total_ht: {
-        type: Sequelize.FLOAT
-      },
-      total_tva: {
-        type: Sequelize.FLOAT
-      },
-      object: {
-        type: Sequelize.STRING(100)
-      },
-      status: {
-        type: Sequelize.ENUM('Brouillon', 'Envoyer', 'Approuver', 'Refuser')
-      },
-      admin_note: {
+      description: {
         type: Sequelize.TEXT
       },
-      customer_id: {
+      hours: {
+        type: Sequelize.INTEGER
+      },
+      tva: {
+        type: Sequelize.FLOAT
+      },
+      invoice_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Customers',
+          model: 'Invoices',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
+        allowNull: true
       },
-      discount: {
-        type: Sequelize.FLOAT
-      },
-      final_note: {
-        type: Sequelize.TEXT
+      estimate_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Estimates',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -60,6 +55,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Estimates');
+    await queryInterface.dropTable('Tasks');
   }
 };

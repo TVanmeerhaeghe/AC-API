@@ -8,6 +8,8 @@ const calendarRoutes = require('./routes/calendar');
 const categoryRoutes = require('./routes/category');
 const productRoutes = require('./routes/product');
 const estimateRoutes = require('./routes/estimate');
+const invoiceRoutes = require('./routes/invoice');
+const taskRoutes = require('./routes/task');
 
 dotenv.config();
 
@@ -19,6 +21,8 @@ app.use('/api/calendars', calendarRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/estimates', estimateRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/tasks', taskRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

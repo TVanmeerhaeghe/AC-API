@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Estimates', {
+    await queryInterface.createTable('Invoices', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -26,7 +26,7 @@ module.exports = {
         type: Sequelize.STRING(100)
       },
       status: {
-        type: Sequelize.ENUM('Brouillon', 'Envoyer', 'Approuver', 'Refuser')
+        type: Sequelize.ENUM('Brouillon', 'Envoyer', 'Payé', 'Annulé')
       },
       admin_note: {
         type: Sequelize.TEXT
@@ -40,11 +40,15 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
-      discount: {
-        type: Sequelize.FLOAT
-      },
-      final_note: {
-        type: Sequelize.TEXT
+      product_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Products',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -60,6 +64,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Estimates');
+    await queryInterface.dropTable('Invoices');
   }
 };

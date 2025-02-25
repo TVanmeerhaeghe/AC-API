@@ -5,7 +5,7 @@ const { Estimate } = require('../models');
  */
 exports.createEstimate = async (req, res) => {
     try {
-        const {
+        let {
             creation_date,
             validity_date,
             total_ht,
@@ -17,6 +17,16 @@ exports.createEstimate = async (req, res) => {
             discount,
             final_note
         } = req.body;
+
+        if (!creation_date) {
+            creation_date = new Date();
+        }
+
+        if (!validity_date) {
+            let baseDate = creation_date ? new Date(creation_date) : new Date();
+            baseDate.setMonth(baseDate.getMonth() + 1);
+            validity_date = baseDate;
+        }
 
         const newEstimate = await Estimate.create({
             creation_date,
@@ -40,6 +50,7 @@ exports.createEstimate = async (req, res) => {
         return res.status(500).json({ error: 'Server error' });
     }
 };
+
 
 /**
  * READ - Récupérer toutes les estimations
