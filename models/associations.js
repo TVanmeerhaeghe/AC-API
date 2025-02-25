@@ -1,5 +1,5 @@
 module.exports = (sequelize) => {
-    const { Customer, Calendar, Category, Product } = sequelize.models;
+    const { Customer, Calendar, Category, Product, Estimate } = sequelize.models;
 
     if (Customer && Calendar) {
         Customer.hasMany(Calendar, {
@@ -22,5 +22,15 @@ module.exports = (sequelize) => {
             as: 'category'
         });
     }
-};
 
+    if (Customer && Estimate) {
+        Customer.hasMany(Estimate, {
+            foreignKey: 'customer_id',
+            as: 'estimates'
+        });
+        Estimate.belongsTo(Customer, {
+            foreignKey: 'customer_id',
+            as: 'customer'
+        });
+    }
+};
