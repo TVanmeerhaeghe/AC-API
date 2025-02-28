@@ -8,7 +8,8 @@ exports.createTask = async (req, res) => {
             hours,
             tva,
             invoice_id,
-            estimate_id
+            estimate_id,
+            hourly_rate
         } = req.body;
 
         if (!invoice_id && !estimate_id) {
@@ -21,7 +22,8 @@ exports.createTask = async (req, res) => {
             hours,
             tva,
             invoice_id,
-            estimate_id
+            estimate_id,
+            hourly_rate
         });
 
         return res.status(201).json({
@@ -67,7 +69,8 @@ exports.updateTask = async (req, res) => {
             hours,
             tva,
             invoice_id,
-            estimate_id
+            estimate_id,
+            hourly_rate
         } = req.body;
         const task = await Task.findByPk(id);
         if (!task) {
@@ -79,6 +82,7 @@ exports.updateTask = async (req, res) => {
         task.tva = tva || task.tva;
         task.invoice_id = (invoice_id !== undefined) ? invoice_id : task.invoice_id;
         task.estimate_id = (estimate_id !== undefined) ? estimate_id : task.estimate_id;
+        task.hourly_rate = (hourly_rate !== undefined) ? hourly_rate : task.hourly_rate;
         await task.save();
         return res.json({
             message: 'Task updated successfully.',

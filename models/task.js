@@ -20,7 +20,12 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER
             },
             tva: {
-                type: DataTypes.FLOAT
+                type: DataTypes.ENUM('12.3', '21.20', '21.10', '20.00', '10.00'),
+                allowNull: false
+            },
+            hourly_rate: {
+                type: DataTypes.FLOAT,
+                allowNull: false
             },
             invoice_id: {
                 type: DataTypes.INTEGER,
