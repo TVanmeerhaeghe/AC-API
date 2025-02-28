@@ -1,4 +1,4 @@
-const { Customer } = require('../models');
+const { Customer, Invoice, Estimate } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createCustomer = async (req, res) => {
@@ -135,6 +135,44 @@ exports.searchCustomers = async (req, res) => {
         return res.json(customers);
     } catch (error) {
         console.error('Erreur searchCustomers :', error);
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+exports.getCustomerInvoices = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const customer = await Customer.findByPk(id);
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer introuvable.' });
+        }
+
+        const invoices = await Invoice.findAll({
+            where: { customer_id: id }
+        });
+
+        return res.json(invoices);
+    } catch (error) {
+        console.error('Erreur getCustomerInvoices :', error);
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+exports.getCustomerEstimates = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const customer = await Customer.findByPk(id);
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer introuvable.' });
+        }
+
+        const estimates = await Estimate.findAll({
+            where: { customer_id: id }
+        });
+
+        return res.json(estimates);
+    } catch (error) {
+        console.error('Erreur getCustomerEstimates :', error);
         return res.status(500).json({ error: 'Erreur serveur' });
     }
 };
