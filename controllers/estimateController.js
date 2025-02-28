@@ -1,4 +1,5 @@
 const { Estimate, Task, Customer } = require('../models');
+const { Op } = require('sequelize');
 
 exports.createEstimate = async (req, res) => {
     try {
@@ -136,6 +137,29 @@ exports.deleteEstimate = async (req, res) => {
         return res.json({ message: 'Estimate deleted successfully.' });
     } catch (error) {
         console.error('Error deleting estimate:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
+
+exports.searchEstimates = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) {
+            return res.status(400).json({ message: 'Paramètre "q" requis pour la recherche.' });
+        }
+
+        const estimates = await Estimate.findAll({
+            where: {
+                [Op.or]: [
+                    { object: { [Op.like]: `%${q}%` } },
+                    { admin_note: { [Op.like]: `%${q}%` } }
+                ]
+            }
+        });
+
+        return res.json(estimates);
+    } catch (error) {
+        console.error('Error searching estimates:', error);
         return res.status(500).json({ error: 'Server error' });
     }
 };

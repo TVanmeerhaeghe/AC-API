@@ -1,4 +1,5 @@
 const { Invoice, Product, Task, Customer } = require('../models');
+const { Op } = require('sequelize');
 
 exports.createInvoice = async (req, res) => {
     try {
@@ -144,6 +145,29 @@ exports.deleteInvoice = async (req, res) => {
         return res.json({ message: 'Invoice deleted successfully.' });
     } catch (error) {
         console.error('Error deleting invoice:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
+
+exports.searchInvoices = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) {
+            return res.status(400).json({ message: 'Paramètre "q" requis pour la recherche.' });
+        }
+
+        const invoices = await Invoice.findAll({
+            where: {
+                [Op.or]: [
+                    { object: { [Op.like]: `%${q}%` } },
+                    { admin_note: { [Op.like]: `%${q}%` } }
+                ]
+            }
+        });
+
+        return res.json(invoices);
+    } catch (error) {
+        console.error('Error searching invoices:', error);
         return res.status(500).json({ error: 'Server error' });
     }
 };
