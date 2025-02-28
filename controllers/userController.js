@@ -53,7 +53,7 @@ exports.signIn = async (req, res) => {
                 surname: user.surname
             },
             process.env.JWT_SECRET,
-            { expiresIn: '48h' }
+            { expiresIn: '480h' }
         );
 
         return res.status(200).json({
