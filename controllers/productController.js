@@ -1,8 +1,5 @@
 const { Product } = require('../models');
 
-/**
- * CREATE - Créer un nouveau produit
- */
 exports.createProduct = async (req, res) => {
     try {
         const { name, description, category_id, condition, price, sell_state } = req.body;
@@ -36,9 +33,6 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer tous les produits
- */
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await Product.findAll();
@@ -49,9 +43,6 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer un produit par son ID
- */
 exports.getProductById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -66,9 +57,6 @@ exports.getProductById = async (req, res) => {
     }
 };
 
-/**
- * UPDATE - Mettre à jour un produit
- */
 exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -106,9 +94,6 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
-/**
- * DELETE - Supprimer un produit
- */
 exports.deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;

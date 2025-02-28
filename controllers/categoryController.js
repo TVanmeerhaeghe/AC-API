@@ -1,8 +1,5 @@
 const { Category, Product } = require('../models');
 
-/**
- * CREATE - Créer une nouvelle catégorie
- */
 exports.createCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -17,9 +14,6 @@ exports.createCategory = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer toutes les catégories
- */
 exports.getAllCategories = async (req, res) => {
     try {
         const categories = await Category.findAll();
@@ -30,9 +24,6 @@ exports.getAllCategories = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer une catégorie par ID
- */
 exports.getCategoryById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -47,9 +38,6 @@ exports.getCategoryById = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer tous les produits d'une catégorie
- */
 exports.getCategoryProducts = async (req, res) => {
     try {
         const { id } = req.params;
@@ -68,9 +56,6 @@ exports.getCategoryProducts = async (req, res) => {
     }
 };
 
-/**
- * UPDATE - Mettre à jour une catégorie
- */
 exports.updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
@@ -92,9 +77,6 @@ exports.updateCategory = async (req, res) => {
     }
 };
 
-/**
- * DELETE - Supprimer une catégorie
- */
 exports.deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;

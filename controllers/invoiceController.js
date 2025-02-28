@@ -11,7 +11,9 @@ exports.createInvoice = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            product_id
+            product_id,
+            discount_name,
+            discount_value
         } = req.body;
 
         if (!creation_date) {
@@ -19,7 +21,7 @@ exports.createInvoice = async (req, res) => {
         }
 
         if (!validity_date) {
-            let baseDate = new Date(creation_date);
+            const baseDate = new Date(creation_date);
             baseDate.setMonth(baseDate.getMonth() + 1);
             validity_date = baseDate;
         }
@@ -33,8 +35,12 @@ exports.createInvoice = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            product_id
+            product_id,
+            discount_name,
+            discount_value
         });
+
+        await newInvoice.reload();
 
         return res.status(201).json({
             message: 'Invoice created successfully.',
@@ -69,7 +75,6 @@ exports.getInvoiceById = async (req, res) => {
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found.' });
         }
-
         if (invoice.product_id) {
             invoice.dataValues.tasks = undefined;
         } else {
@@ -94,12 +99,16 @@ exports.updateInvoice = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            product_id
+            product_id,
+            discount_name,
+            discount_value
         } = req.body;
+
         const invoice = await Invoice.findByPk(id);
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found.' });
         }
+
         invoice.creation_date = creation_date || invoice.creation_date;
         invoice.validity_date = validity_date || invoice.validity_date;
         invoice.total_ht = total_ht || invoice.total_ht;
@@ -109,8 +118,11 @@ exports.updateInvoice = async (req, res) => {
         invoice.admin_note = admin_note || invoice.admin_note;
         invoice.customer_id = customer_id || invoice.customer_id;
         invoice.product_id = (product_id !== undefined) ? product_id : invoice.product_id;
+        invoice.discount_name = (discount_name !== undefined) ? discount_name : invoice.discount_name;
+        invoice.discount_value = (discount_value !== undefined) ? discount_value : invoice.discount_value;
 
         await invoice.save();
+
         return res.json({
             message: 'Invoice updated successfully.',
             invoice

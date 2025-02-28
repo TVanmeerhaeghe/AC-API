@@ -1,8 +1,5 @@
 const { Estimate, Task, Customer } = require('../models');
 
-/**
- * CREATE - Créer une nouvelle estimation
- */
 exports.createEstimate = async (req, res) => {
     try {
         let {
@@ -14,7 +11,8 @@ exports.createEstimate = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            discount,
+            discount_name,
+            discount_value,
             final_note
         } = req.body;
 
@@ -23,7 +21,7 @@ exports.createEstimate = async (req, res) => {
         }
 
         if (!validity_date) {
-            let baseDate = creation_date ? new Date(creation_date) : new Date();
+            const baseDate = creation_date ? new Date(creation_date) : new Date();
             baseDate.setMonth(baseDate.getMonth() + 1);
             validity_date = baseDate;
         }
@@ -37,7 +35,8 @@ exports.createEstimate = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            discount,
+            discount_name,
+            discount_value,
             final_note
         });
 
@@ -51,10 +50,6 @@ exports.createEstimate = async (req, res) => {
     }
 };
 
-
-/**
- * READ - Récupérer toutes les estimations
- */
 exports.getAllEstimates = async (req, res) => {
     try {
         const estimates = await Estimate.findAll();
@@ -65,9 +60,6 @@ exports.getAllEstimates = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer une estimation par ID
- */
 exports.getEstimateById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -87,9 +79,6 @@ exports.getEstimateById = async (req, res) => {
     }
 };
 
-/**
- * UPDATE - Mettre à jour une estimation
- */
 exports.updateEstimate = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,7 +91,8 @@ exports.updateEstimate = async (req, res) => {
             status,
             admin_note,
             customer_id,
-            discount,
+            discount_name,
+            discount_value,
             final_note
         } = req.body;
 
@@ -119,10 +109,12 @@ exports.updateEstimate = async (req, res) => {
         estimate.status = status || estimate.status;
         estimate.admin_note = admin_note || estimate.admin_note;
         estimate.customer_id = customer_id || estimate.customer_id;
-        estimate.discount = discount || estimate.discount;
+        estimate.discount_name = (discount_name !== undefined) ? discount_name : estimate.discount_name;
+        estimate.discount_value = (discount_value !== undefined) ? discount_value : estimate.discount_value;
         estimate.final_note = final_note || estimate.final_note;
 
         await estimate.save();
+
         return res.json({
             message: 'Estimate updated successfully.',
             estimate
@@ -133,9 +125,6 @@ exports.updateEstimate = async (req, res) => {
     }
 };
 
-/**
- * DELETE - Supprimer une estimation
- */
 exports.deleteEstimate = async (req, res) => {
     try {
         const { id } = req.params;

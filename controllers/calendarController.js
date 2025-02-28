@@ -1,8 +1,5 @@
 const { Calendar } = require('../models');
 
-/**
- * CREATE
- */
 exports.createCalendar = async (req, res) => {
     try {
         const {
@@ -35,9 +32,6 @@ exports.createCalendar = async (req, res) => {
     }
 };
 
-/**
- * READ - Get all
- */
 exports.getAllCalendars = async (req, res) => {
     try {
         const calendars = await Calendar.findAll();
@@ -48,9 +42,6 @@ exports.getAllCalendars = async (req, res) => {
     }
 };
 
-/**
- * READ - Get by ID
- */
 exports.getCalendarById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -67,9 +58,6 @@ exports.getCalendarById = async (req, res) => {
     }
 };
 
-/**
- * UPDATE
- */
 exports.updateCalendar = async (req, res) => {
     try {
         const { id } = req.params;
@@ -108,9 +96,6 @@ exports.updateCalendar = async (req, res) => {
     }
 };
 
-/**
- * DELETE
- */
 exports.deleteCalendar = async (req, res) => {
     try {
         const { id } = req.params;

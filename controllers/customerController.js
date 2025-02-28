@@ -1,9 +1,6 @@
 const { Customer } = require('../models');
 const { Op } = require('sequelize');
 
-/**
- * CREATE - Créer un nouveau client
- */
 exports.createCustomer = async (req, res) => {
     try {
         const {
@@ -38,9 +35,6 @@ exports.createCustomer = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer tous les clients
- */
 exports.getAllCustomers = async (req, res) => {
     try {
         const customers = await Customer.findAll();
@@ -51,9 +45,6 @@ exports.getAllCustomers = async (req, res) => {
     }
 };
 
-/**
- * READ - Récupérer un client par ID
- */
 exports.getCustomerById = async (req, res) => {
     try {
         const id = req.params.id;
@@ -70,9 +61,6 @@ exports.getCustomerById = async (req, res) => {
     }
 };
 
-/**
- * UPDATE - Mettre à jour un client
- */
 exports.updateCustomer = async (req, res) => {
     try {
         const id = req.params.id;
@@ -110,9 +98,6 @@ exports.updateCustomer = async (req, res) => {
     }
 };
 
-/**
- * DELETE - Supprimer un client
- */
 exports.deleteCustomer = async (req, res) => {
     try {
         const id = req.params.id;
@@ -130,10 +115,6 @@ exports.deleteCustomer = async (req, res) => {
     }
 };
 
-/**
- * SEARCH - Rechercher des clients par un terme
- * Exemple : /search?q=John
- */
 exports.searchCustomers = async (req, res) => {
     try {
         const { q } = req.query;

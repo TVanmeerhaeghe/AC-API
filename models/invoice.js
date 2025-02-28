@@ -13,40 +13,39 @@ module.exports = (sequelize, DataTypes) => {
         static async recalcTotals(invoiceId) {
             const invoice = await Invoice.findByPk(invoiceId);
             if (!invoice) return;
-            const tasks = await Task.findAll({ where: { invoice_id: invoiceId } });
-            let totalBrutHT = 0;
-            for (const task of tasks) {
-                const ht = task.hours * task.hourly_rate;
-                totalBrutHT += ht;
-            }
-            let discount = invoice.discount_value || 0;
-            if (discount > totalBrutHT) {
-                discount = totalBrutHT;
-            }
             let totalHT = 0;
             let totalTVA = 0;
-            for (const task of tasks) {
-                const ht = task.hours * task.hourly_rate;
-                const tvaRate = parseFloat(task.tva) / 100;
-                const partRemise = discount * (ht / totalBrutHT);
-                const htAjuste = ht - partRemise;
-                totalHT += htAjuste;
-                totalTVA += htAjuste * tvaRate;
-            }
+
             if (invoice.product_id) {
                 const product = await Product.findByPk(invoice.product_id);
                 if (product) {
-                    const productPrice = product.price || 0;
-                    let productDiscount = 0;
-                    if (totalBrutHT > 0) {
-                        productDiscount = discount * (productPrice / totalBrutHT);
-                    }
-                    const productHTAjuste = productPrice - productDiscount;
-                    totalHT += productHTAjuste;
+                    let price = product.price || 0;
+                    let discount = invoice.discount_value || 0;
+                    if (discount > price) discount = price;
+                    totalHT = price - discount;
+                    totalTVA = 0;
+                }
+            } else {
+                const tasks = await Task.findAll({ where: { invoice_id: invoiceId } });
+                let totalBrutHT = 0;
+                for (const task of tasks) {
+                    const lineHT = task.hours * task.hourly_rate;
+                    totalBrutHT += lineHT;
+                }
+                let discount = invoice.discount_value || 0;
+                if (discount > totalBrutHT) discount = totalBrutHT;
+                for (const task of tasks) {
+                    const lineHT = task.hours * task.hourly_rate;
+                    const tvaRate = parseFloat(task.tva) / 100;
+                    const partRemise = discount * (lineHT / totalBrutHT);
+                    const adjustedHT = lineHT - partRemise;
+                    totalHT += adjustedHT;
+                    totalTVA += adjustedHT * tvaRate;
                 }
             }
-            invoice.total_ht = totalHT;
-            invoice.total_tva = totalTVA;
+
+            invoice.total_ht = totalHT < 0 ? 0 : totalHT;
+            invoice.total_tva = totalTVA < 0 ? 0 : totalTVA;
             await invoice.save();
         }
     }
@@ -96,10 +95,11 @@ module.exports = (sequelize, DataTypes) => {
             sequelize,
             modelName: 'Invoice',
             hooks: {
+                async afterCreate(invoice) {
+                    await Invoice.recalcTotals(invoice.id);
+                },
                 async afterUpdate(invoice) {
-                    if (invoice.changed('discount_value') || invoice.changed('discount_name') || invoice.changed('product_id')) {
-                        await Invoice.recalcTotals(invoice.id);
-                    }
+                    await Invoice.recalcTotals(invoice.id);
                 }
             }
         }

@@ -8,5 +8,6 @@ router.get('/', verifyToken, isAdmin, taskController.getAllTasks);
 router.get('/:id', verifyToken, isAdmin, taskController.getTaskById);
 router.put('/:id', verifyToken, isAdmin, taskController.updateTask);
 router.delete('/:id', verifyToken, isAdmin, taskController.deleteTask);
+router.get('/tva/values', taskController.getTvaValues);
 
 module.exports = router;

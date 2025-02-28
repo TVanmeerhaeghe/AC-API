@@ -108,3 +108,13 @@ exports.deleteTask = async (req, res) => {
         return res.status(500).json({ error: 'Server error' });
     }
 };
+
+exports.getTvaValues = (req, res) => {
+    try {
+        const tvaValues = Task.rawAttributes.tva.values;
+        return res.json(tvaValues);
+    } catch (error) {
+        console.error('Error fetching tva values:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
