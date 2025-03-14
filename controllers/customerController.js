@@ -1,4 +1,4 @@
-const { Customer, Invoice, Estimate } = require('../models');
+const { Customer, Invoice, Estimate, Product } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createCustomer = async (req, res) => {
@@ -173,6 +173,25 @@ exports.getCustomerEstimates = async (req, res) => {
         return res.json(estimates);
     } catch (error) {
         console.error('Erreur getCustomerEstimates :', error);
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+exports.getCustomerPurchasedProducts = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const customer = await Customer.findByPk(id);
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer introuvable.' });
+        }
+
+        const products = await Product.findAll({
+            where: { buy_by: id }
+        });
+
+        return res.json(products);
+    } catch (error) {
+        console.error('Erreur getCustomerPurchasedProducts :', error);
         return res.status(500).json({ error: 'Erreur serveur' });
     }
 };

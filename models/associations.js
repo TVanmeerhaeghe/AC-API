@@ -77,4 +77,15 @@ module.exports = (sequelize) => {
             as: 'estimate'
         });
     }
+
+    if (Customer && Product) {
+        Customer.hasMany(Product, {
+            foreignKey: 'buy_by',
+            as: 'purchasedProducts'
+        });
+        Product.belongsTo(Customer, {
+            foreignKey: 'buy_by',
+            as: 'buyer'
+        });
+    }
 };

@@ -9,7 +9,8 @@ router.get('/search', verifyToken, isAdmin, customerController.searchCustomers);
 router.get('/:id', verifyToken, isAdmin, customerController.getCustomerById);
 router.put('/:id', verifyToken, isAdmin, customerController.updateCustomer);
 router.delete('/:id', verifyToken, isAdmin, customerController.deleteCustomer);
-router.get('/:id/invoices', customerController.getCustomerInvoices);
-router.get('/:id/estimates', customerController.getCustomerEstimates);
+router.get('/:id/invoices', verifyToken, isAdmin, customerController.getCustomerInvoices);
+router.get('/:id/estimates', verifyToken, isAdmin, customerController.getCustomerEstimates);
+router.get('/:id/products', verifyToken, isAdmin, customerController.getCustomerPurchasedProducts);
 
 module.exports = router;

@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
             },
             video: {
                 type: DataTypes.STRING(255)
+            },
+            buy_by: {
+                type: DataTypes.INTEGER,
+                allowNull: true
             }
         },
         {
