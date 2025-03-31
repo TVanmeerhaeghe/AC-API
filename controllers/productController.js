@@ -2,7 +2,15 @@ const { Product } = require('../models');
 
 exports.createProduct = async (req, res) => {
     try {
-        const { name, description, category_id, condition, price, sell_state } = req.body;
+        const {
+            name,
+            description,
+            category_id,
+            condition,
+            price,
+            sell_state,
+            quantity
+        } = req.body;
         let imagePath = null;
         let videoPath = null;
         if (req.files) {
@@ -21,7 +29,8 @@ exports.createProduct = async (req, res) => {
             price,
             sell_state,
             images: imagePath,
-            video: videoPath
+            video: videoPath,
+            quantity
         });
         return res.status(201).json({
             message: 'Product created successfully.',
@@ -64,7 +73,15 @@ exports.updateProduct = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Product not found.' });
         }
-        const { name, description, category_id, condition, price, sell_state } = req.body;
+        const {
+            name,
+            description,
+            category_id,
+            condition,
+            price,
+            sell_state,
+            quantity
+        } = req.body;
         let imagePath = product.images;
         let videoPath = product.video;
         if (req.files) {
@@ -83,6 +100,9 @@ exports.updateProduct = async (req, res) => {
         product.sell_state = sell_state !== undefined ? sell_state : product.sell_state;
         product.images = imagePath;
         product.video = videoPath;
+        if (quantity !== undefined) {
+            product.quantity = quantity;
+        }
         await product.save();
         return res.json({
             message: 'Product updated successfully.',

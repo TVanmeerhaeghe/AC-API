@@ -37,6 +37,11 @@ module.exports = (sequelize, DataTypes) => {
             buy_by: {
                 type: DataTypes.INTEGER,
                 allowNull: true
+            },
+            quantity: {
+                type: DataTypes.INTEGER,
+                defaultValue: 1,
+                allowNull: false
             }
         },
         {
