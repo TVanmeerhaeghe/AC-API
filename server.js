@@ -15,14 +15,17 @@ dotenv.config();
 
 app.use(express.json());
 
-app.use('/api/users', userRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/calendars', calendarRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/estimates', estimateRoutes);
-app.use('/api/invoices', invoiceRoutes);
-app.use('/api/tasks', taskRoutes);
+const basePath = '/acbrocante/api';
+
+app.use(`${basePath}/users`, userRoutes);
+app.use(`${basePath}/customers`, customerRoutes);
+app.use(`${basePath}/calendars`, calendarRoutes);
+app.use(`${basePath}/categories`, categoryRoutes);
+app.use(`${basePath}/products`, productRoutes);
+app.use(`${basePath}/estimates`, estimateRoutes);
+app.use(`${basePath}/invoices`, invoiceRoutes);
+app.use(`${basePath}/tasks`, taskRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
