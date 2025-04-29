@@ -36,8 +36,7 @@ const swaggerUiOptions = {
 app.use(
   `${basePath}/docs`,
   swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument),
-  swaggerUiOptions
+  swaggerUi.setup(swaggerDocument, undefined, swaggerUiOptions)
 );
 
 const PORT = process.env.PORT || 3000;
