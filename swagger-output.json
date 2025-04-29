@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "description": "Documentation API pour la solution AC Brocante"
   },
-  "host": "diawd.fr/acbrocante/",
+  "host": "diawd.fr/acbrocante",
   "servers": [
     {
       "url": "http://diawd.fr/acbrocante",

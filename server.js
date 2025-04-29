@@ -28,7 +28,17 @@ app.use(`${basePath}/products`, productRoutes);
 app.use(`${basePath}/estimates`, estimateRoutes);
 app.use(`${basePath}/invoices`, invoiceRoutes);
 app.use(`${basePath}/tasks`, taskRoutes);
-app.use(`${basePath}/docs`, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const swaggerUiOptions = {
+  customSiteTitle: 'Documentation API AC Brocante',
+};
+
+app.use(
+  `${basePath}/docs`,
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument),
+  swaggerUiOptions
+);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
