@@ -117,6 +117,40 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+exports.changePassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      return res
+        .status(400)
+        .json({ message: 'current_password et new_password requis.' });
+    }
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    const ok = await bcrypt.compare(current_password, user.password);
+    if (!ok) {
+      return res
+        .status(401)
+        .json({ message: 'Mot de passe actuel incorrect.' });
+    }
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    user.password = hashed;
+    await user.save();
+
+    return res.json({ message: 'Mot de passe mis à jour avec succès.' });
+  } catch (error) {
+    console.error('Erreur changePassword :', error);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 exports.deleteUser = async (req, res) => {
   try {
     const id = req.params.id;
