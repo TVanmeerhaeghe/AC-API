@@ -2,8 +2,8 @@ const { Category, Product } = require('../models');
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const newCategory = await Category.create({ name, description });
+    const { name, description, icon } = req.body;
+    const newCategory = await Category.create({ name, description, icon });
     return res.status(201).json({
       message: 'Category created successfully.',
       category: newCategory,
@@ -61,7 +61,7 @@ exports.getCategoryProducts = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name, description, icon } = req.body;
     const category = await Category.findByPk(id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found.' });
@@ -69,6 +69,7 @@ exports.updateCategory = async (req, res) => {
 
     category.name = name ?? category.name;
     category.description = description ?? category.description;
+    category.icon = icon ?? category.icon;
 
     await category.save();
     return res.json({
