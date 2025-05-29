@@ -14,6 +14,7 @@ const productRoutes = require('./routes/product');
 const estimateRoutes = require('./routes/estimate');
 const invoiceRoutes = require('./routes/invoice');
 const taskRoutes = require('./routes/task');
+const contactRoutes = require('./routes/contact');
 
 dotenv.config();
 
@@ -35,6 +36,11 @@ app.use(`${basePath}/products`, productRoutes);
 app.use(`${basePath}/estimates`, estimateRoutes);
 app.use(`${basePath}/invoices`, invoiceRoutes);
 app.use(`${basePath}/tasks`, taskRoutes);
+app.use(`${basePath}/contacts`, contactRoutes);
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../uploads'))
+);
 
 const swaggerUiOptions = {
   customSiteTitle: 'Documentation API AC Brocante',

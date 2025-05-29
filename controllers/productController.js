@@ -49,12 +49,27 @@ exports.createProduct = async (req, res) => {
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll();
-    return res.json(products);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const transformed = products.map(p => {
+      const obj = p.toJSON();
+      const imgPath = obj.images?.replace(/\\/g, '/');
+      const videoPath = obj.video?.replace(/\\/g, '/');
+      const imageUrl = imgPath ? `${baseUrl}/${imgPath}` : null;
+      const videoUrl = videoPath ? `${baseUrl}/${videoPath}` : null;
+      return {
+        ...obj,
+        imageUrl,
+        videoUrl
+      };
+    });
+    return res.json(transformed);
   } catch (error) {
     console.error('Error fetching products:', error);
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+
 
 exports.getProductById = async (req, res) => {
   try {
@@ -63,12 +78,23 @@ exports.getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
     }
-    return res.json(product);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const p = product.toJSON();
+    const imgPath = p.images ? p.images.replace(/\\/g, '/') : null;
+    const imageUrl = imgPath ? `${baseUrl}/${imgPath}` : null;
+    const vidPath = p.video ? p.video.replace(/\\/g, '/') : null;
+    const videoUrl = vidPath ? `${baseUrl}/${vidPath}` : null;
+    return res.json({
+      ...p,
+      imageUrl,
+      videoUrl
+    });
   } catch (error) {
     console.error('Error fetching product:', error);
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 exports.updateProduct = async (req, res) => {
   try {
