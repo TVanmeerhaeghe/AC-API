@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Category, Product } = require('../models');
 
 exports.createCategory = async (req, res) => {
@@ -38,20 +39,33 @@ exports.getCategoryById = async (req, res) => {
   }
 };
 
+const makeUrls = obj => {
+  const base = process.env.BASE_URL.replace(/\/$/, '');
+  const imgPath = obj.images?.replace(/\\/g, '/');
+  const vidPath = obj.video?.replace(/\\/g, '/');
+  return {
+    imageUrl: imgPath ? `${base}/${imgPath}` : null,
+    videoUrl: vidPath ? `${base}/${vidPath}` : null,
+  };
+};
+
 exports.getCategoryProducts = async (req, res) => {
   try {
     const { id } = req.params;
     const category = await Category.findByPk(id, {
-      include: [
-        {
-          association: 'products',
-        },
-      ],
+      include: [{ association: 'products' }],
     });
     if (!category) {
       return res.status(404).json({ message: 'Category not found.' });
     }
-    return res.json(category.products);
+    const transformed = category.products.map(p => {
+      const obj = p.toJSON();
+      return {
+        ...obj,
+        ...makeUrls(obj),
+      };
+    });
+    return res.json(transformed);
   } catch (error) {
     console.error('Error fetching products for category:', error);
     return res.status(500).json({ error: 'Server error' });
