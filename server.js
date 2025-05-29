@@ -5,6 +5,7 @@ const sequelize = require('./config/db');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
+const path = require('path');
 
 const userRoutes = require('./routes/user');
 const customerRoutes = require('./routes/customer');
