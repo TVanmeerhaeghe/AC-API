@@ -3,13 +3,28 @@ const { Product } = require('../models');
 
 const makeUrls = obj => {
   const base = process.env.BASE_URL.replace(/\/$/, '');
-  const imgPath = obj.images?.replace(/\\/g, '/');
+  let paths = [];
+
+  try {
+    paths = JSON.parse(obj.images || '[]');
+  } catch {
+    if (obj.images) paths = [obj.images];
+  }
+
+  const imageUrls = paths.map(p =>
+    `${base}/${p.replace(/\\/g, '/')}`
+  );
+
   const vidPath = obj.video?.replace(/\\/g, '/');
+  const videoUrl = vidPath ? `${base}/${vidPath}` : null;
+
   return {
-    imageUrl: imgPath ? `${base}/${imgPath}` : null,
-    videoUrl: vidPath ? `${base}/${vidPath}` : null,
+    imageUrl: imageUrls[0] || null,
+    imageUrls,
+    videoUrl
   };
 };
+
 
 exports.createProduct = async (req, res) => {
   try {
