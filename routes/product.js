@@ -5,7 +5,7 @@ const { verifyToken, isAdmin } = require('../middleware/auth');
 const uploadMiddleware = require('../middleware/upload');
 
 const cpUpload = uploadMiddleware.fields([
-    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 5 },
     { name: 'video', maxCount: 1 }
 ]);
 

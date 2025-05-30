@@ -13,24 +13,10 @@ const makeUrls = obj => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const {
-      name,
-      description,
-      category_id,
-      condition,
-      price,
-      sell_state,
-      quantity,
-      material,
-      style,
-    } = req.body;
+    const { name, description, category_id, condition, price, sell_state, quantity, material, style } = req.body;
 
-    let imagePath = null;
-    let videoPath = null;
-    if (req.files) {
-      if (req.files.image) imagePath = req.files.image[0].path;
-      if (req.files.video) videoPath = req.files.video[0].path;
-    }
+    const imagePaths = (req.files.images || []).map(f => f.path);
+    const videoPath = req.files.video?.[0]?.path || null;
 
     const newProduct = await Product.create({
       name,
@@ -39,7 +25,7 @@ exports.createProduct = async (req, res) => {
       condition,
       price,
       sell_state,
-      images: imagePath,
+      images: JSON.stringify(imagePaths),
       video: videoPath,
       quantity,
       material,
@@ -57,6 +43,7 @@ exports.createProduct = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -113,11 +100,20 @@ exports.updateProduct = async (req, res) => {
       style,
     } = req.body;
 
-    let imagePath = product.images;
+    let imagePaths = [];
+    if (req.files && req.files.images) {
+      imagePaths = req.files.images.map(f => f.path);
+    } else if (product.images) {
+      try {
+        imagePaths = JSON.parse(product.images);
+      } catch {
+        imagePaths = [product.images];
+      }
+    }
+
     let videoPath = product.video;
-    if (req.files) {
-      if (req.files.image) imagePath = req.files.image[0].path;
-      if (req.files.video) videoPath = req.files.video[0].path;
+    if (req.files && req.files.video && req.files.video[0]) {
+      videoPath = req.files.video[0].path;
     }
 
     Object.assign(product, {
@@ -130,8 +126,8 @@ exports.updateProduct = async (req, res) => {
       quantity: quantity ?? product.quantity,
       material: material ?? product.material,
       style: style ?? product.style,
-      images: imagePath ?? product.images,
-      video: videoPath ?? product.video,
+      images: JSON.stringify(imagePaths),
+      video: videoPath,
     });
 
     await product.save();
@@ -147,6 +143,8 @@ exports.updateProduct = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+
 
 exports.deleteProduct = async (req, res) => {
   try {
