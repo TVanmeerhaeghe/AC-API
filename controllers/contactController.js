@@ -1,31 +1,64 @@
+require('dotenv').config();
 const { Contact } = require('../models');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: +process.env.SMTP_PORT,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
 
 exports.createContact = async (req, res) => {
     try {
         const {
-            name,
-            surname,
-            email,
-            phone,
-            subject,
-            message,
-            product_id
+            name, surname, email, phone,
+            subject, message,
+            product_id,
+            website,
+            recaptchaToken
         } = req.body;
 
-        const newContact = await Contact.create({
-            name,
-            surname,
-            email,
-            phone,
-            subject,
-            message,
-            product_id: product_id || null
+        if (website) {
+            return res.status(400).json({ message: 'Spam detected.' });
+        }
+
+        const resp = await fetch(
+            `https://www.google.com/recaptcha/api/siteverify`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
+            }
+        );
+        const json = await resp.json();
+        if (!json.success || json.score < 0.5) {
+            return res.status(400).json({ message: 'Échec du captcha.' });
+        }
+
+        const contact = await Contact.create({
+            name, surname, email, phone,
+            subject, message, product_id
         });
 
-        return res.status(201).json({
-            message: 'Contact saved successfully.',
-            contact: newContact
-        });
+        const mailOptions = {
+            from: `"Site Contact" <${process.env.SMTP_FROM}>`,
+            to: process.env.CONTACT_NOTIFY_EMAIL,
+            subject: `[Contact] ${subject}`,
+            html: `
+        <p><strong>Nom :</strong> ${name} ${surname}</p>
+        <p><strong>Email :</strong> ${email}</p>
+        <p><strong>Téléphone :</strong> ${phone}</p>
+        <p><strong>Produit ID :</strong> ${product_id || 'aucun'}</p>
+        <p><strong>Message :</strong><br>${message.replace(/\n/g, '<br>')}</p>
+      `
+        };
+        await transporter.sendMail(mailOptions);
+
+        return res.status(201).json(contact);
     } catch (error) {
         console.error('Error creating contact:', error);
         return res.status(500).json({ error: 'Server error' });
