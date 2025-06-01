@@ -175,3 +175,36 @@ exports.deleteProduct = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim() === '') {
+      return res.status(400).json({ message: 'Le paramètre "q" est requis pour la recherche.' });
+    }
+
+    const products = await Product.findAll({
+      where: {
+        [Op.or]: [
+          { name: { [Op.like]: `%${q}%` } },
+          { description: { [Op.like]: `%${q}%` } },
+          { style: { [Op.like]: `%${q}%` } },
+          { material: { [Op.like]: `%${q}%` } }
+        ]
+      }
+    });
+
+    const transformed = products.map(p => {
+      const obj = p.toJSON();
+      return {
+        ...obj,
+        ...makeUrls(obj),
+      };
+    });
+
+    return res.json(transformed);
+  } catch (error) {
+    console.error('Error searching products:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
