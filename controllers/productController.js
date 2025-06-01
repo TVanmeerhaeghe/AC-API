@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Product } = require('../models');
+const { Op } = require('sequelize');
 
 const makeUrls = obj => {
   const base = process.env.BASE_URL.replace(/\/$/, '');
