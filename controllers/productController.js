@@ -210,6 +210,4 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
-module.exports = {
-  makeUrls,
-};
+module.exports.makeUrls = makeUrls;
