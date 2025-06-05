@@ -15,7 +15,7 @@ exports.createInvoice = async (req, res) => {
       customer_id,
       discount_name,
       discount_value,
-      products
+      products // Tableau [{ product_id, quantity }]
     } = req.body;
 
     if (!creation_date) creation_date = new Date();
@@ -40,22 +40,28 @@ exports.createInvoice = async (req, res) => {
     });
 
     if (Array.isArray(products)) {
-      const productThroughs = {};
       for (const prod of products) {
-        productThroughs[prod.product_id] = { quantity: prod.quantity || 1 };
+        await newInvoice.addProduct(prod.product_id, { through: { quantity: prod.quantity || 1 } });
       }
-
-      await newInvoice.setProducts(
-        Object.keys(productThroughs),
-        { through: productThroughs }
-      );
     }
 
-    await newInvoice.reload({ include: [{ model: Product, as: 'products' }] });
+    await newInvoice.reload({
+      include: [
+        { model: Product, as: 'products', through: { attributes: ['quantity'] } }
+      ]
+    });
+
+    const obj = newInvoice.toJSON();
+    if (obj.products && obj.products.length) {
+      obj.products = obj.products.map(prod => ({
+        ...prod,
+        ...makeUrls(prod)
+      }));
+    }
 
     return res.status(201).json({
       message: 'Invoice created successfully.',
-      invoice: newInvoice,
+      invoice: obj,
     });
   } catch (error) {
     console.error('Error creating invoice:', error);
@@ -117,7 +123,7 @@ exports.updateInvoice = async (req, res) => {
       customer_id,
       discount_name,
       discount_value,
-      products
+      products // Tableau [{ product_id, quantity }]
     } = req.body;
 
     const invoice = await Invoice.findByPk(id);
@@ -139,28 +145,35 @@ exports.updateInvoice = async (req, res) => {
     await invoice.save();
 
     if (Array.isArray(products)) {
-      const productThroughs = {};
+      await invoice.setProducts([]);
       for (const prod of products) {
-        productThroughs[prod.product_id] = { quantity: prod.quantity || 1 };
+        await invoice.addProduct(prod.product_id, { through: { quantity: prod.quantity || 1 } });
       }
-      await invoice.setProducts(
-        Object.keys(productThroughs),
-        { through: productThroughs }
-      );
     }
 
-    await invoice.reload({ include: [{ model: Product, as: 'products' }] });
+    await invoice.reload({
+      include: [
+        { model: Product, as: 'products', through: { attributes: ['quantity'] } }
+      ]
+    });
+
+    const obj = invoice.toJSON();
+    if (obj.products && obj.products.length) {
+      obj.products = obj.products.map(prod => ({
+        ...prod,
+        ...makeUrls(prod)
+      }));
+    }
 
     return res.json({
       message: 'Invoice updated successfully.',
-      invoice,
+      invoice: obj,
     });
   } catch (error) {
     console.error('Error updating invoice:', error);
     return res.status(500).json({ error: 'Server error' });
   }
 };
-
 
 exports.deleteInvoice = async (req, res) => {
   try {
