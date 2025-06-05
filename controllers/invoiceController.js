@@ -12,14 +12,12 @@ exports.createInvoice = async (req, res) => {
       status,
       admin_note,
       customer_id,
-      product_id,
       discount_name,
       discount_value,
+      products // <-- Tableau [{ product_id, quantity }]
     } = req.body;
 
-    if (!creation_date) {
-      creation_date = new Date();
-    }
+    if (!creation_date) creation_date = new Date();
 
     if (!validity_date) {
       const baseDate = new Date(creation_date);
@@ -36,12 +34,23 @@ exports.createInvoice = async (req, res) => {
       status,
       admin_note,
       customer_id,
-      product_id,
       discount_name,
-      discount_value,
+      discount_value
     });
 
-    await newInvoice.reload();
+    if (Array.isArray(products)) {
+      const productThroughs = {};
+      for (const prod of products) {
+        productThroughs[prod.product_id] = { quantity: prod.quantity || 1 };
+      }
+
+      await newInvoice.setProducts(
+        Object.keys(productThroughs),
+        { through: productThroughs }
+      );
+    }
+
+    await newInvoice.reload({ include: [{ model: Product, as: 'products' }] });
 
     return res.status(201).json({
       message: 'Invoice created successfully.',
@@ -52,6 +61,7 @@ exports.createInvoice = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 exports.getAllInvoices = async (req, res) => {
   try {
@@ -68,7 +78,7 @@ exports.getInvoiceById = async (req, res) => {
     const { id } = req.params;
     const invoice = await Invoice.findByPk(id, {
       include: [
-        { model: Product, as: 'product' },
+        { model: Product, as: 'product', through: { attributes: ['quantity'] } },
         { model: Task, as: 'tasks' },
         { model: Customer, as: 'customer' },
       ],
@@ -100,9 +110,9 @@ exports.updateInvoice = async (req, res) => {
       status,
       admin_note,
       customer_id,
-      product_id,
       discount_name,
       discount_value,
+      products
     } = req.body;
 
     const invoice = await Invoice.findByPk(id);
@@ -118,11 +128,23 @@ exports.updateInvoice = async (req, res) => {
     invoice.status = status ?? invoice.status;
     invoice.admin_note = admin_note ?? invoice.admin_note;
     invoice.customer_id = customer_id ?? invoice.customer_id;
-    invoice.product_id = product_id ?? invoice.product_id;
     invoice.discount_name = discount_name ?? invoice.discount_name;
     invoice.discount_value = discount_value ?? invoice.discount_value;
 
     await invoice.save();
+
+    if (Array.isArray(products)) {
+      const productThroughs = {};
+      for (const prod of products) {
+        productThroughs[prod.product_id] = { quantity: prod.quantity || 1 };
+      }
+      await invoice.setProducts(
+        Object.keys(productThroughs),
+        { through: productThroughs }
+      );
+    }
+
+    await invoice.reload({ include: [{ model: Product, as: 'products' }] });
 
     return res.json({
       message: 'Invoice updated successfully.',
@@ -133,6 +155,7 @@ exports.updateInvoice = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 exports.deleteInvoice = async (req, res) => {
   try {

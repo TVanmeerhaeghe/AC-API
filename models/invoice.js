@@ -11,19 +11,31 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         static async recalcTotals(invoiceId) {
-            const invoice = await Invoice.findByPk(invoiceId);
+            const invoice = await Invoice.findByPk(invoiceId, {
+                include: [
+                    { model: Product, as: 'products', through: { attributes: ['quantity'] } }
+                ]
+            });
             if (!invoice) return;
             let totalHT = 0;
             let totalTVA = 0;
 
-            if (invoice.product_id) {
-                const product = await Product.findByPk(invoice.product_id);
-                if (product) {
-                    let price = product.price || 0;
-                    let discount = invoice.discount_value || 0;
-                    if (discount > price) discount = price;
-                    totalHT = price - discount;
-                    totalTVA = 0;
+            if (invoice.products && invoice.products.length > 0) {
+                let totalBrutHT = 0;
+                for (const product of invoice.products) {
+                    const price = product.price || 0;
+                    const qty = product.InvoiceProduct?.quantity || 1;
+                    totalBrutHT += price * qty;
+                }
+                let discount = invoice.discount_value || 0;
+                if (discount > totalBrutHT) discount = totalBrutHT;
+
+                for (const product of invoice.products) {
+                    const price = product.price || 0;
+                    const qty = product.InvoiceProduct?.quantity || 1;
+                    const partRemise = discount * ((price * qty) / totalBrutHT);
+                    const adjustedHT = (price * qty) - partRemise;
+                    totalHT += adjustedHT;
                 }
             } else {
                 const tasks = await Task.findAll({ where: { invoice_id: invoiceId } });
@@ -78,10 +90,6 @@ module.exports = (sequelize, DataTypes) => {
             },
             customer_id: {
                 type: DataTypes.INTEGER
-            },
-            product_id: {
-                type: DataTypes.INTEGER,
-                allowNull: true
             },
             discount_name: {
                 type: DataTypes.STRING(100)

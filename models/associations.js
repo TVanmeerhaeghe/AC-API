@@ -88,4 +88,18 @@ module.exports = (sequelize) => {
             as: 'buyer'
         });
     }
+
+    if (Product && Invoice) {
+        Invoice.belongsToMany(Product, {
+            through: InvoiceProduct,
+            foreignKey: 'invoice_id',
+            as: 'products'
+        });
+        Product.belongsToMany(Invoice, {
+            through: InvoiceProduct,
+            foreignKey: 'product_id',
+            as: 'invoices'
+        });
+    }
+
 };
