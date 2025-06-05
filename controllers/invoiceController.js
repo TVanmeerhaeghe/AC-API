@@ -78,7 +78,7 @@ exports.getInvoiceById = async (req, res) => {
     const { id } = req.params;
     const invoice = await Invoice.findByPk(id, {
       include: [
-        { model: Product, as: 'product', through: { attributes: ['quantity'] } },
+        { model: Product, as: 'products', through: { attributes: ['quantity'] } },
         { model: Task, as: 'tasks' },
         { model: Customer, as: 'customer' },
       ],
