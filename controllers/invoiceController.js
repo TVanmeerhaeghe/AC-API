@@ -1,4 +1,5 @@
 const { Invoice, Product, Task, Customer } = require('../models');
+const { makeUrls } = require('./productController');
 const { Op } = require('sequelize');
 
 exports.createInvoice = async (req, res) => {
@@ -14,7 +15,7 @@ exports.createInvoice = async (req, res) => {
       customer_id,
       discount_name,
       discount_value,
-      products // <-- Tableau [{ product_id, quantity }]
+      products
     } = req.body;
 
     if (!creation_date) creation_date = new Date();
@@ -86,12 +87,16 @@ exports.getInvoiceById = async (req, res) => {
     if (!invoice) {
       return res.status(404).json({ message: 'Invoice not found.' });
     }
-    if (invoice.product_id) {
-      invoice.dataValues.tasks = undefined;
-    } else {
-      invoice.dataValues.product = undefined;
+
+    const data = invoice.toJSON();
+    if (data.products && data.products.length) {
+      data.products = data.products.map(prod => ({
+        ...prod,
+        ...makeUrls(prod)
+      }));
     }
-    return res.json(invoice);
+
+    return res.json(data);
   } catch (error) {
     console.error('Error fetching invoice:', error);
     return res.status(500).json({ error: 'Server error' });
