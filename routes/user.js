@@ -8,9 +8,9 @@ router.post('/signin', verifyToken, isAdmin, userController.signIn);
 router.post('/forgot-password', userController.forgotPassword);
 
 router.get('/', verifyToken, isAdmin, userController.getAllUsers);
+router.put('/reset-password', verifyResetToken, userController.changePassword);
 router.get('/:id', verifyToken, isAdmin, userController.getUserById);
 router.put('/:id', verifyToken, isAdmin, userController.updateUser);
-router.put('/reset-password', verifyResetToken, userController.changePassword);
 router.delete('/:id', verifyToken, isAdmin, userController.deleteUser);
 
 module.exports = router;
