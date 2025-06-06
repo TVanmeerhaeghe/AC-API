@@ -130,7 +130,10 @@ exports.changePassword = async (req, res) => {
         .json({ message: 'Le nouveau mot de passe est requis.' });
     }
 
+    console.log('Recherche utilisateur avec id:', userId);
     const user = await User.findByPk(userId);
+    console.log('Résultat Sequelize:', user);
+
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur introuvable.' });
     }
