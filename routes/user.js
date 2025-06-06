@@ -10,7 +10,7 @@ router.post('/forgot-password', userController.forgotPassword);
 router.get('/', verifyToken, isAdmin, userController.getAllUsers);
 router.get('/:id', verifyToken, isAdmin, userController.getUserById);
 router.put('/:id', verifyToken, isAdmin, userController.updateUser);
-router.put('/:id/password', verifyToken, userController.changePassword);
+router.put('/reset-password', verifyResetToken, userController.changePassword);
 router.delete('/:id', verifyToken, isAdmin, userController.deleteUser);
 
 module.exports = router;
