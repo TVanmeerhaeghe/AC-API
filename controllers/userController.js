@@ -179,19 +179,18 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ where: { email_adress: email } });
     if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
 
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 60 * 60 * 1000);
-
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = expires;
-    await user.save();
+    const token = jwt.sign(
+      { id: user.id, email: user.email_adress, type: 'reset' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     const frontendUrl =
       process.env.NODE_ENV === 'production'
         ? process.env.BASE_URL.replace(/\/$/, '')
         : 'http://localhost:4200';
+    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
 
-    const resetUrl = `${frontendUrl}/reset-password?token=${token}&id=${user.id}`;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,

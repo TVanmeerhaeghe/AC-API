@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { User } = require('../models');
 
 exports.verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
@@ -24,4 +25,21 @@ exports.isAdmin = (req, res, next) => {
         return next();
     }
     return res.status(403).json({ message: 'Accès réservé aux administrateurs.' });
+};
+
+
+exports.verifyResetToken = (req, res, next) => {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ message: 'Token manquant.' });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.type !== 'reset') {
+            return res.status(403).json({ message: 'Token invalide.' });
+        }
+        req.userToReset = decoded;
+        next();
+    } catch (err) {
+        return res.status(403).json({ message: 'Token invalide ou expiré.' });
+    }
 };
