@@ -3,7 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
-    static associate(models) {}
+    static associate(models) { }
   }
 
   Product.init(
@@ -48,6 +48,14 @@ module.exports = (sequelize, DataTypes) => {
       style: {
         type: DataTypes.STRING(100),
         allowNull: true,
+      },
+      buyer_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Customers',
+          key: 'id'
+        }
       },
     },
     {
