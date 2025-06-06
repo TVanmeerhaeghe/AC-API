@@ -4,7 +4,7 @@ const userController = require('../controllers/userController');
 const { verifyToken, isAdmin, verifyResetToken } = require('../middleware/auth');
 
 router.post('/signup', userController.signUp);
-router.post('/signin', verifyToken, isAdmin, userController.signIn);
+router.post('/signin', isAdmin, userController.signIn);
 router.post('/forgot-password', userController.forgotPassword);
 
 router.get('/', verifyToken, isAdmin, userController.getAllUsers);
