@@ -29,7 +29,7 @@ const makeUrls = obj => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, category_id, condition, price, sell_state, quantity, material, style, buyer_id } = req.body;
+    const { name, description, category_id, condition, price, sell_state, quantity, material, style, buy_by } = req.body;
 
     const imagePaths = (req.files.images || []).map(f => f.path);
     const videoPath = req.files.video?.[0]?.path || null;
@@ -46,7 +46,7 @@ exports.createProduct = async (req, res) => {
       quantity,
       material,
       style,
-      buyer_id: buyer_id !== undefined ? parseInt(buyer_id, 10) || null : null,
+      buy_by: buy_by !== undefined ? parseInt(buy_by, 10) || null : null,
     });
 
     const obj = newProduct.toJSON();
@@ -115,7 +115,7 @@ exports.updateProduct = async (req, res) => {
       quantity,
       material,
       style,
-      buyer_id
+      buy_by
     } = req.body;
 
     let imagePaths = [];
@@ -146,7 +146,7 @@ exports.updateProduct = async (req, res) => {
       style: style ?? product.style,
       images: JSON.stringify(imagePaths),
       video: videoPath,
-      buyer_id: buyer_id !== undefined ? parseInt(buyer_id, 10) || null : product.buyer_id,
+      buy_by: buy_by !== undefined ? parseInt(buy_by, 10) || null : product.buy_by,
     });
 
     await product.save();

@@ -49,14 +49,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(100),
         allowNull: true,
       },
-      buyer_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Customers',
-          key: 'id'
-        }
-      },
     },
     {
       sequelize,
