@@ -199,7 +199,7 @@ exports.forgotPassword = async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
-      to: user.email,
+      to: user.email_adress,
       subject: 'Réinitialisation de mot de passe',
       html: `<p>Pour réinitialiser votre mot de passe, cliquez sur ce lien : <a href="${resetUrl}">${resetUrl}</a></p>`
     });
