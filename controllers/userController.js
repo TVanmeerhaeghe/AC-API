@@ -1,6 +1,8 @@
+const crypto = require('crypto');
 const { User } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 exports.signUp = async (req, res) => {
   try {
@@ -165,6 +167,46 @@ exports.deleteUser = async (req, res) => {
     return res.json({ message: 'Utilisateur supprimé avec succès.' });
   } catch (error) {
     console.error('Erreur deleteUser :', error);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email requis.' });
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expires;
+    await user.save();
+
+    const resetUrl = `${process.env.BASE_URL.replace(/\/$/, '')}/reset-password?token=${token}`;
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: user.email,
+      subject: 'Réinitialisation de mot de passe',
+      html: `<p>Pour réinitialiser votre mot de passe, cliquez sur ce lien : <a href="${resetUrl}">${resetUrl}</a></p>`
+    });
+
+    return res.json({ message: 'Email de réinitialisation envoyé.' });
+  } catch (error) {
+    console.error('Erreur reset password:', error);
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
