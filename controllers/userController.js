@@ -186,7 +186,12 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpires = expires;
     await user.save();
 
-    const resetUrl = `${process.env.BASE_URL.replace(/\/$/, '')}/reset-password?token=${token}`;
+    const frontendUrl =
+      process.env.NODE_ENV === 'production'
+        ? process.env.BASE_URL.replace(/\/$/, '')
+        : 'http://localhost:4200';
+
+    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
