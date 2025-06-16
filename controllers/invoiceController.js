@@ -214,3 +214,54 @@ exports.searchInvoices = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.getPaidRevenue = async (req, res) => {
+  try {
+    const { period } = req.query;
+
+    const invoices = await Invoice.findAll({
+      where: { status: 'Payé' },
+      attributes: ['id', 'creation_date', 'total_ht'],
+      order: [['creation_date', 'DESC']]
+    });
+
+    const getKey = (date) => {
+      const d = new Date(date);
+      if (period === 'week') {
+        const firstDay = new Date(d.getFullYear(), 0, 1);
+        const days = Math.floor((d - firstDay) / (24 * 60 * 60 * 1000));
+        const week = Math.ceil((days + firstDay.getDay() + 1) / 7);
+        return `${d.getFullYear()}-S${week}`;
+      }
+      if (period === 'month') {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      }
+      if (period === 'year') {
+        return `${d.getFullYear()}`;
+      }
+      return d.toISOString().split('T')[0];
+    };
+
+
+    const grouped = {};
+    for (const inv of invoices) {
+      const key = getKey(inv.creation_date);
+      if (!grouped[key]) {
+        grouped[key] = { total: 0, dates: [] };
+      }
+      grouped[key].total += inv.total_ht || 0;
+      grouped[key].dates.push(inv.creation_date);
+    }
+
+    const result = Object.entries(grouped).map(([key, value]) => ({
+      period: key,
+      total: value.total,
+      dates: value.dates
+    }));
+
+    return res.json(result);
+  } catch (error) {
+    console.error('Error fetching paid revenue:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};

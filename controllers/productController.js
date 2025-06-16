@@ -213,4 +213,55 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
+exports.getSoldRevenue = async (req, res) => {
+  try {
+    const { period } = req.query;
+
+    const products = await Product.findAll({
+      where: { sell_state: true },
+      attributes: ['id', 'price', 'quantity', 'updatedAt', 'createdAt'],
+      order: [['updatedAt', 'DESC']]
+    });
+
+    const getKey = (date) => {
+      const d = new Date(date);
+      if (period === 'week') {
+        const firstDay = new Date(d.getFullYear(), 0, 1);
+        const days = Math.floor((d - firstDay) / (24 * 60 * 60 * 1000));
+        const week = Math.ceil((days + firstDay.getDay() + 1) / 7);
+        return `${d.getFullYear()}-S${week}`;
+      }
+      if (period === 'month') {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      }
+      if (period === 'year') {
+        return `${d.getFullYear()}`;
+      }
+      return d.toISOString().split('T')[0];
+    };
+
+    const grouped = {};
+    for (const prod of products) {
+      const date = prod.updatedAt || prod.createdAt;
+      const key = getKey(date);
+      if (!grouped[key]) {
+        grouped[key] = { total: 0, dates: [] };
+      }
+      grouped[key].total += (prod.price || 0) * (prod.quantity || 1);
+      grouped[key].dates.push(date);
+    }
+
+    const result = Object.entries(grouped).map(([key, value]) => ({
+      period: key,
+      total: value.total,
+      dates: value.dates
+    }));
+
+    return res.json(result);
+  } catch (error) {
+    console.error('Error fetching sold revenue:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
 module.exports.makeUrls = makeUrls;
