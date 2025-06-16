@@ -45,13 +45,13 @@ exports.createInvoice = async (req, res) => {
       }
 
       await Invoice.recalcTotals(newInvoice.id);
+      await newInvoice.reload();
+      await newInvoice.reload({
+        include: [
+          { model: Product, as: 'products', through: { attributes: ['quantity'] } }
+        ]
+      });
     }
-
-    await newInvoice.reload({
-      include: [
-        { model: Product, as: 'products', through: { attributes: ['quantity'] } }
-      ]
-    });
 
     const obj = newInvoice.toJSON();
     if (obj.products && obj.products.length) {
@@ -125,7 +125,7 @@ exports.updateInvoice = async (req, res) => {
       customer_id,
       discount_name,
       discount_value,
-      products // Tableau [{ product_id, quantity }]
+      products
     } = req.body;
 
     const invoice = await Invoice.findByPk(id);
