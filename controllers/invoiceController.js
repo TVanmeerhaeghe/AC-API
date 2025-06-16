@@ -43,6 +43,8 @@ exports.createInvoice = async (req, res) => {
       for (const prod of products) {
         await newInvoice.addProduct(prod.product_id, { through: { quantity: prod.quantity || 1 } });
       }
+
+      await Invoice.recalcTotals(newInvoice.id);
     }
 
     await newInvoice.reload({
@@ -149,6 +151,8 @@ exports.updateInvoice = async (req, res) => {
       for (const prod of products) {
         await invoice.addProduct(prod.product_id, { through: { quantity: prod.quantity || 1 } });
       }
+
+      await Invoice.recalcTotals(invoice.id);
     }
 
     await invoice.reload({
