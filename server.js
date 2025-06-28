@@ -40,7 +40,7 @@ app.use(`${basePath}/tasks`, taskRoutes);
 app.use(`${basePath}/contacts`, contactRoutes);
 app.use(
   `${basePath}/uploads`,
-  express.static(path.join(__dirname, '../uploads'))
+  express.static(path.join(__dirname, 'uploads'))
 );
 
 const swaggerUiOptions = {
