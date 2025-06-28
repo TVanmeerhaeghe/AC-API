@@ -3,26 +3,28 @@ const { Product } = require('../models');
 const { Op } = require('sequelize');
 
 const makeUrls = obj => {
-  const base = process.env.BASE_URL.replace(/\/$/, '');
-  let paths = [];
+  const basePath = '/acbrocante/api';
+  let raw = (obj.images || '[]').replace(/\\/g, '/');
 
+  let paths;
   try {
-    paths = JSON.parse(obj.images || '[]');
+    paths = JSON.parse(raw);
+    if (!Array.isArray(paths)) paths = [paths];
   } catch {
-    if (obj.images) paths = [obj.images];
+    const trimmed = raw.replace(/^\[|\]$/g, '');
+    paths = trimmed
+      .split(/\s*,\s*/)
+      .map(p => p.replace(/^"|"$/g, ''))
+      .filter(p => p.length);
   }
 
   const imageUrls = paths.map(p =>
-    `${base}/${p.replace(/\\/g, '/')}`
+    `${basePath}/${p.replace(/^\/+/, '')}`
   );
-
-  const vidPath = obj.video?.replace(/\\/g, '/');
-  const videoUrl = vidPath ? `${base}/${vidPath}` : null;
 
   return {
     imageUrl: imageUrls[0] || null,
     imageUrls,
-    videoUrl
   };
 };
 
